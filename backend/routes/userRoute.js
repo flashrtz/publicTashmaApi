@@ -7,11 +7,9 @@ router.get("/", async (req, res) => {
   try {
     mysqlConnection.query(`CALL GetAllUsers();`, (error, results, fields) => {
       if (error) {
-        return mysqlConnection.rollback(() => {
-          console.log(error);
-        });
+        mysqlConnection.rollback();
+        res.status(400).send("Error while getting all users");
       }
-      res.status(400).send("Error while getting all users");
     });
   } catch (err) {
     console.log(err);
