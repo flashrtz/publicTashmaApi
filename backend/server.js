@@ -12,32 +12,30 @@ import salesRoute from "./routes/salesRoute";
 import cashierRoute from "./routes//cashierRoute";
 
 const app = express();
-app.use(cors());
-app.options("*", cors());
+app.use(
+  cors({
+    origin: "http://dashboard.tashmastudio.com",
+    credentials: true,
+  })
+);
 // Add headers
-app.use(function (req, res, next) {
-  // Website you wish to allow to connect
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:8080");
+// app.use(function (req, res, next) {
+//   res.setHeader("Access-Control-Allow-Origin", "http://localhost:8080");
 
-  // Request methods you wish to allow
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, OPTIONS, PUT, PATCH, DELETE"
-  );
 
-  // Request headers you wish to allow
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "X-Requested-With,content-type"
-  );
+//   res.setHeader(
+//     "Access-Control-Allow-Methods",
+//     "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+//   );
 
-  // Set to true if you need the website to include cookies in the requests sent
-  // to the API (e.g. in case you use sessions)
-  res.setHeader("Access-Control-Allow-Credentials", true);
+//   res.setHeader(
+//     "Access-Control-Allow-Headers",
+//     "X-Requested-With,content-type"
+//   );
 
-  // Pass to next layer of middleware
-  next();
-});
+//   res.setHeader("Access-Control-Allow-Credentials", true);
+//   next();
+// });
 app.get("/", (_req, res) => res.send("Hello Tashma"));
 app.use(bodyParser.json());
 app.use("/api/users", userRoute);
@@ -48,8 +46,6 @@ app.use("/api/paymentmethods", paymentMethodRoute);
 app.use("/api/commissions", commissionRoute);
 app.use("/api/sales", salesRoute);
 app.use("/api/cashier", cashierRoute);
-
-
 
 app.listen(config.PORT, () => {
   console.log("Server started at http://localhost:5000");
