@@ -7,9 +7,8 @@ router.get("/", async (req, res) => {
   try {
     mysqlConnection.query(`CALL GetAllOrders();`, (error, results, fields) => {
       if (error) {
-        return mysqlConnection.rollback(() => {
-          throw error;
-        });
+        mysqlConnection.rollback();
+        res.status(500).send("Error while getting all orders");
       }
       var orders = results;
       res.send(orders[0]);
@@ -27,9 +26,8 @@ router.get("/:id", async (req, res) => {
       `CALL GetOrderbyId(${req.params.id});`,
       (error, results, fields) => {
         if (error) {
-          return mysqlConnection.rollback(() => {
-            throw error;
-          });
+          mysqlConnection.rollback();
+          res.status(500).send("Error while getting order");
         }
         order = {
           OrderId: results[0][0].OrderId,
@@ -52,9 +50,8 @@ router.get("/:id", async (req, res) => {
       `CALL GetOrderItemsbyId(${req.params.id});`,
       (error, results, fields) => {
         if (error) {
-          return mysqlConnection.rollback(() => {
-            throw error;
-          });
+          mysqlConnection.rollback();
+          res.status(500).send("Error while getting order items");
         }
         var items = results[0].map((item, i) => {
           return {
@@ -90,9 +87,8 @@ router.post("/get-order-by-daterange", async (req, res) => {
       `CALL GetOrderbyDateRange('${req.body.startDate}', '${req.body.endDate}');`,
       (error, results, fields) => {
         if (error) {
-          return mysqlConnection.rollback(() => {
-            throw error;
-          });
+          mysqlConnection.rollback();
+          res.status(500).send("Error while getting orders");
         }
         var orders = results;
         res.send(orders[0]);
@@ -110,24 +106,23 @@ router.post("/", async (req, res) => {
     var User = req.body.UserId;
     mysqlConnection.beginTransaction((err) => {
       if (err) {
-        throw err;
+        mysqlConnection.rollback();
+        res.status(500).send("Error while creating order");
       }
       mysqlConnection.query(
         `CALL InsertCustomer('${CustomerName}', '${PhoneNumber}', ${User}, @customerId);`,
         (error, results, fields) => {
           if (error) {
-            return mysqlConnection.rollback(() => {
-              throw error;
-            });
+            mysqlConnection.rollback();
+            res.status(500).send("Error while creating customer");
           }
 
           mysqlConnection.query(
             "Select @customerId as customerId;",
             (error, results, fields) => {
               if (error) {
-                return mysqlConnection.rollback(() => {
-                  throw error;
-                });
+                mysqlConnection.rollback();
+                res.status(500).send("Error while getting customerId");
               }
               var CustomerId = results[0].customerId;
               var OrderTotal = parseFloat(req.body.TotalAmount);
@@ -139,17 +134,15 @@ router.post("/", async (req, res) => {
                 `CALL InsertOrderDetails(${CustomerId}, ${OrderTotal}, ${PaymentMethodId},${AdvancePayment}, ${AmountDue}, ${User}, @orderId);`,
                 (error, results, fields) => {
                   if (error) {
-                    return mysqlConnection.rollback(() => {
-                      throw error;
-                    });
+                    mysqlConnection.rollback();
+                    res.status(500).send("Error while creating order details");
                   }
                   mysqlConnection.query(
                     "Select @orderId as orderId;",
                     (error, results, fields) => {
                       if (error) {
-                        return mysqlConnection.rollback(() => {
-                          throw error;
-                        });
+                        mysqlConnection.rollback();
+                        res.status(500).send("Error while getting orderId");
                       }
                       var OrderId = results[0].orderId;
                       req.body.Orders.map((item) => {
@@ -157,9 +150,12 @@ router.post("/", async (req, res) => {
                           `CALL InsertOrderDetailsItem(${OrderId}, ${item.CategoryId}, ${item.ProductId}, '${item.Description}', ${item.Qty}, ${item.Price}, ${item.Discount}, ${item.WorkDoneBy}, ${item.Commission}, ${User});`,
                           (error, results, fields) => {
                             if (error) {
-                              return mysqlConnection.rollback(() => {
-                                throw error;
-                              });
+                              mysqlConnection.rollback();
+                              res
+                                .status(500)
+                                .send(
+                                  "Error while creating order details item"
+                                );
                             }
                           }
                         );
@@ -167,12 +163,14 @@ router.post("/", async (req, res) => {
 
                       mysqlConnection.commit((err) => {
                         if (err) {
-                          return mysqlConnection.rollback(() => {
-                            throw err;
-                          });
+                          mysqlConnection.rollback();
+                          res.status(500).send("Error while creating order");
                         }
                         console.log("success!");
-                        res.send({ message: "Order Created.", OrderId: OrderId});
+                        res.send({
+                          message: "Order Created.",
+                          OrderId: OrderId,
+                        });
                       });
                     }
                   );
@@ -192,26 +190,24 @@ router.post("/", async (req, res) => {
 router.post("/complete", async (req, res) => {
   try {
     var OrderId = req.body.OrderId;
-    // console.log(OrderId);
     mysqlConnection.beginTransaction((err) => {
       if (err) {
-        throw err;
+        mysqlConnection.rollback();
+        res.status(500).send("Error while completing order");
       }
       mysqlConnection.query(
         `CALL CompleteOrder(${OrderId});`,
         (error, results, fields) => {
           if (error) {
-            return mysqlConnection.rollback(() => {
-              throw error;
-            });
+            mysqlConnection.rollback();
+            res.status(500).send("Error while completing order");
           }
         }
       );
       mysqlConnection.commit((err) => {
         if (err) {
-          return mysqlConnection.rollback(() => {
-            throw err;
-          });
+          mysqlConnection.rollback();
+          res.status(500).send("Error while completing order");
         }
         console.log("success!");
         res.send({ message: "Order Completed." });
@@ -228,23 +224,22 @@ router.post("/work-done", async (req, res) => {
     // console.log(OrderId);
     mysqlConnection.beginTransaction((err) => {
       if (err) {
-        throw err;
+        mysqlConnection.rollback();
+        res.status(500).send("Error while work done order");
       }
       mysqlConnection.query(
         `CALL WorkDoneOrder(${OrderId});`,
         (error, results, fields) => {
           if (error) {
-            return mysqlConnection.rollback(() => {
-              throw error;
-            });
+            mysqlConnection.rollback();
+            res.status(500).send("Error while work done order");
           }
         }
       );
       mysqlConnection.commit((err) => {
         if (err) {
-          return mysqlConnection.rollback(() => {
-            throw err;
-          });
+          mysqlConnection.rollback();
+          res.status(500).send("Error while work done order");
         }
         console.log("success!");
         res.send({ message: "Order Edited." });
@@ -260,26 +255,24 @@ router.post("/payCommission", async (req, res) => {
   try {
     var OrderId = req.body.OrderId;
     var UserId = req.body.UserId;
-    // console.log(OrderId);
     mysqlConnection.beginTransaction((err) => {
       if (err) {
-        throw err;
+        mysqlConnection.rollback();
+        res.status(500).send("Error while work done order");
       }
       mysqlConnection.query(
         `CALL PayCommision(${OrderId},${UserId});`,
         (error, results, fields) => {
           if (error) {
-            return mysqlConnection.rollback(() => {
-              throw error;
-            });
+            mysqlConnection.rollback();
+            res.status(500).send("Error while work done order");
           }
         }
       );
       mysqlConnection.commit((err) => {
         if (err) {
-          return mysqlConnection.rollback(() => {
-            throw err;
-          });
+          mysqlConnection.rollback();
+          res.status(500).send("Error while work done order");
         }
         console.log("success!");
         res.send({ message: "Order Commission Paid." });

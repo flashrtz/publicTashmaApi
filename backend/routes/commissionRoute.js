@@ -5,14 +5,16 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    mysqlConnection.query(`CALL GetAllCommissons();`, (error, results, fields) => {
-      if (error) {
-        return mysqlConnection.rollback(() => {
-          throw error;
-        });
+    mysqlConnection.query(
+      `CALL GetAllCommissons();`,
+      (error, results, fields) => {
+        if (error) {
+          mysqlConnection.rollback();
+          res.status(500).send("Error while getting all commissons");
+        }
+        res.send(results[0]);
       }
-      res.send(results[0]);
-    });
+    );
   } catch (err) {
     console.log(err);
     res.status(400).send(err.message);
@@ -27,15 +29,15 @@ router.post("/usercommission", async (req, res) => {
 
     mysqlConnection.beginTransaction((err) => {
       if (err) {
-        throw err;
+        mysqlConnection.rollback();
+        res.status(500).send("Error while getting user commissons");
       }
       mysqlConnection.query(
         `CALL GetUserCommissonsByMonthYear(${month},${year},'${epfnumber}');`,
         (error, results, fields) => {
           if (error) {
-            return mysqlConnection.rollback(() => {
-              throw error;
-            }); 
+            mysqlConnection.rollback();
+            res.status(500).send("Error while getting user commissons");
           }
           console.log(results);
           res.send(results[0]);

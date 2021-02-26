@@ -8,7 +8,7 @@ router.get("/", async (req, res) => {
     mysqlConnection.query(`CALL GetAllUsers();`, (error, results, fields) => {
       if (error) {
         mysqlConnection.rollback();
-        res.status(400).send("Error while getting all users");
+        res.status(500).send("Error while getting all users");
       }
     });
   } catch (err) {
@@ -23,11 +23,9 @@ router.get("/:id", async (req, res) => {
       `CALL GetUserById(${req.params.id});`,
       (error, results, fields) => {
         if (error) {
-          return mysqlConnection.rollback(() => {
-            throw error;
-          });
+          mysqlConnection.rollback();
+          res.status(500).send("Error while getting user");
         }
-
         res.send(results[0]);
       }
     );
@@ -45,24 +43,22 @@ router.post("/", async (req, res) => {
     var EPFNumber = req.body.EPFNumber;
     var IsAdmin = req.body.IsAdmin;
     mysqlConnection.beginTransaction((err) => {
-      if (err) {
-        throw err;
-      }
+      mysqlConnection.rollback();
+      res.status(500).send("Error while creating user");
+
       mysqlConnection.query(
         `CALL CreateUser('${Name}','${Description}', '${NIC}', '${EPFNumber}', '${IsAdmin}');`,
         (error, results, fields) => {
           if (error) {
-            return mysqlConnection.rollback(() => {
-              throw error;
-            });
+            mysqlConnection.rollback();
+            res.status(500).send("Error while creating user");
           }
         }
       );
       mysqlConnection.commit((err) => {
         if (err) {
-          return mysqlConnection.rollback(() => {
-            throw err;
-          });
+          mysqlConnection.rollback();
+          res.status(500).send("Error while creating user");
         }
         console.log("success!");
         res.send({ message: "User Created." });
@@ -84,23 +80,22 @@ router.put("/", async (req, res) => {
     var IsAdmin = req.body.IsAdmin;
     mysqlConnection.beginTransaction((err) => {
       if (err) {
-        throw err;
+         mysqlConnection.rollback();
+            res.status(500).send("Error while editing user");
       }
       mysqlConnection.query(
         `CALL EditUser('${UserId}', '${Name}','${Description}', '${NIC}', '${EPFNumber}', '${IsAdmin}');`,
         (error, results, fields) => {
           if (error) {
-            return mysqlConnection.rollback(() => {
-              throw error;
-            });
+            mysqlConnection.rollback();
+            res.status(500).send("Error while editing user");
           }
         }
       );
       mysqlConnection.commit((err) => {
         if (err) {
-          return mysqlConnection.rollback(() => {
-            throw err;
-          });
+          mysqlConnection.rollback();
+            res.status(500).send("Error while editing user");
         }
         console.log("success!");
         res.send({ message: "User Edited." });
@@ -117,23 +112,22 @@ router.delete("/", async (req, res) => {
     var UserId = req.body.UserId;
     mysqlConnection.beginTransaction((err) => {
       if (err) {
-        throw err;
+        mysqlConnection.rollback();
+        res.status(500).send("Error while deleting user");
       }
       mysqlConnection.query(
         `CALL DeleteUser(${UserId});`,
         (error, results, fields) => {
           if (error) {
-            return mysqlConnection.rollback(() => {
-              throw error;
-            });
+            mysqlConnection.rollback();
+            res.status(500).send("Error while deleting user");
           }
         }
       );
       mysqlConnection.commit((err) => {
         if (err) {
-          return mysqlConnection.rollback(() => {
-            throw err;
-          });
+          mysqlConnection.rollback();
+        res.status(500).send("Error while deleting user");
         }
         console.log("success!");
         res.send({ message: "User Deleted." });
@@ -152,15 +146,15 @@ router.post("/signin", async (req, res) => {
 
     mysqlConnection.beginTransaction((err) => {
       if (err) {
-        throw err;
+        mysqlConnection.rollback();
+        res.status(500).send("Error while signing in");
       }
       mysqlConnection.query(
         `CALL SignIn('${epfnumber}','${password}');`,
         (error, results, fields) => {
           if (error) {
-            return mysqlConnection.rollback(() => {
-              throw error;
-            });
+            mysqlConnection.rollback();
+            res.status(500).send("Error while signing in");
           }
           console.log(results);
           if (results[0][0].LoginStatus == 0) {
