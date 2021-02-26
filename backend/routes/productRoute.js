@@ -5,21 +5,22 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    mysqlConnection.query(`CALL GetAllProducts();`, (error, results, fields) => {
-      if (error) {
-        return mysqlConnection.rollback(() => {
-          throw error;
-        });
+    mysqlConnection.query(
+      `CALL GetAllProducts();`,
+      (error, results, fields) => {
+        if (error) {
+          mysqlConnection.rollback();
+          res.status(500).send("Error while getting all products");
+        }
+        var orders = results;
+        res.send(orders[0]);
       }
-      var orders = results;
-      res.send(orders[0]);
-    });
+    );
   } catch (err) {
     console.log(err);
     res.status(400).send(err.message);
   }
 });
-
 
 router.post("/", async (req, res) => {
   try {
@@ -33,23 +34,22 @@ router.post("/", async (req, res) => {
 
     mysqlConnection.beginTransaction((err) => {
       if (err) {
-        throw err;
+        mysqlConnection.rollback();
+        res.status(500).send("Error while creating product");
       }
       mysqlConnection.query(
         `CALL CreateProduct(${CategoryId},'${Name}','${Description}',${BuyingPrice},${SellingPrice},${Quantity},${Commission});`,
         (error, results, fields) => {
           if (error) {
-            return mysqlConnection.rollback(() => {
-              throw error;
-            });
+            mysqlConnection.rollback();
+            res.status(500).send("Error while creating product");
           }
         }
       );
       mysqlConnection.commit((err) => {
         if (err) {
-          return mysqlConnection.rollback(() => {
-            throw err;
-          });
+          mysqlConnection.rollback();
+          res.status(500).send("Error while creating product");
         }
         console.log("success!");
         res.send({ message: "Product Created." });
@@ -73,23 +73,22 @@ router.put("/", async (req, res) => {
     var Commission = req.body.Commission;
     mysqlConnection.beginTransaction((err) => {
       if (err) {
-        throw err;
+        mysqlConnection.rollback();
+        res.status(500).send("Error while editing product");
       }
       mysqlConnection.query(
         `CALL CreateProduct(${ProductId},${CategoryId},'${Name}','${Description}',${BuyingPrice},${SellingPrice},${Quantity},${Commission});`,
         (error, results, fields) => {
           if (error) {
-            return mysqlConnection.rollback(() => {
-              throw error;
-            });
+            mysqlConnection.rollback();
+            res.status(500).send("Error while editing product");
           }
         }
       );
       mysqlConnection.commit((err) => {
         if (err) {
-          return mysqlConnection.rollback(() => {
-            throw err;
-          });
+          mysqlConnection.rollback();
+          res.status(500).send("Error while editing product");
         }
         console.log("success!");
         res.send({ message: "Product Edited." });
@@ -106,23 +105,22 @@ router.delete("/", async (req, res) => {
     var ProductId = req.body.ProductId;
     mysqlConnection.beginTransaction((err) => {
       if (err) {
-        throw err;
+        mysqlConnection.rollback();
+        res.status(500).send("Error while deleting product");
       }
       mysqlConnection.query(
         `CALL DeleteProduct(${ProductId});`,
         (error, results, fields) => {
           if (error) {
-            return mysqlConnection.rollback(() => {
-              throw error;
-            });
+            mysqlConnection.rollback();
+            res.status(500).send("Error while deleting product");
           }
         }
       );
       mysqlConnection.commit((err) => {
         if (err) {
-          return mysqlConnection.rollback(() => {
-            throw err;
-          });
+          mysqlConnection.rollback();
+          res.status(500).send("Error while deleting product");
         }
         console.log("success!");
         res.send({ message: "Product Deleted." });

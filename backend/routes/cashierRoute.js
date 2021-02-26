@@ -21,23 +21,24 @@ const router = express.Router();
 // });
 
 router.post("/getcashierdetails", async (req, res) => {
-    try {
-      var date = req.body.date;
-      mysqlConnection.query(`CALL GetAllCashierDetails('${date}');`, (error, results, fields) => {
+  try {
+    var date = req.body.date;
+    mysqlConnection.query(
+      `CALL GetAllCashierDetails('${date}');`,
+      (error, results, fields) => {
         if (error) {
-          return mysqlConnection.rollback(() => {
-            throw error;
-          });
+          mysqlConnection.rollback();
+          res.status(500).send("Error while getting cashier details");
         }
         var orders = results;
         res.send(orders);
-      });
-    } catch (err) {
-      console.log(err);
-      res.status(400).send(err.message);
-    }
-   
-  });
+      }
+    );
+  } catch (err) {
+    console.log(err);
+    res.status(400).send(err.message);
+  }
+});
 
 router.post("/", async (req, res) => {
   try {
@@ -46,23 +47,22 @@ router.post("/", async (req, res) => {
     var createdBy = req.body.createdBy;
     mysqlConnection.beginTransaction((err) => {
       if (err) {
-        throw err;
+        mysqlConnection.rollback();
+        res.status(500).send("Error while inserting petty cash details");
       }
       mysqlConnection.query(
         `CALL InsertPettyCash('${amount}','${ispettycash}','${createdBy}');`,
         (error, results, fields) => {
           if (error) {
-            return mysqlConnection.rollback(() => {
-              throw error;
-            });
+            mysqlConnection.rollback();
+            res.status(500).send("Error while inserting petty cash details");
           }
         }
       );
       mysqlConnection.commit((err) => {
         if (err) {
-          return mysqlConnection.rollback(() => {
-            throw err;
-          });
+          mysqlConnection.rollback();
+          res.status(500).send("Error while inserting petty cash details");
         }
         console.log("success!");
         res.send({ message: "Petty Cash Updated." });
@@ -81,23 +81,22 @@ router.put("/", async (req, res) => {
     // console.log(OrderId);
     mysqlConnection.beginTransaction((err) => {
       if (err) {
-        throw err;
+        mysqlConnection.rollback();
+        res.status(500).send("Error while editing category");
       }
       mysqlConnection.query(
         `CALL EditCategory(${CategoryId},'${CategoryName}');`,
         (error, results, fields) => {
           if (error) {
-            return mysqlConnection.rollback(() => {
-              throw error;
-            });
+            mysqlConnection.rollback();
+            res.status(500).send("Error while editing category");
           }
         }
       );
       mysqlConnection.commit((err) => {
         if (err) {
-          return mysqlConnection.rollback(() => {
-            throw err;
-          });
+          mysqlConnection.rollback();
+          res.status(500).send("Error while editing category");
         }
         console.log("success!");
         res.send({ message: "Category Edited." });
