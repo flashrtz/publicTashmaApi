@@ -5,7 +5,14 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    mysqlConnection.query(`CALL GetAllUsers();`);
+    mysqlConnection.query(`CALL GetAllUsers();`, (error, results, fields) => {
+      if (error) {
+        return mysqlConnection.rollback(() => {
+          console.log(error);
+        });
+      }
+      res.send(results[0]);
+    });
   } catch (err) {
     console.log(err);
     res.status(400).send(err.message);
