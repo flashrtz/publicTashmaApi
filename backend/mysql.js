@@ -8,10 +8,10 @@ import mysql from 'mysql';
 //     insecureAuth : true
 //   });
   const mysqlConnection  = mysql.createConnection({
-    host            : 'bwjrexb8cb4ttqjsopm5-mysql.services.clever-cloud.com',
-    user            : 'ukulqau5jdbrgpi1',
-    password        : '9uUO1KoeFiDBy6JTfOYC',
-    database        : 'bwjrexb8cb4ttqjsopm5',
+    host            : 'localhost',
+    user            : 'admin',
+    password        : 'admin',
+    database        : 'tashma',
     insecureAuth : true
   });
 export default mysqlConnection;
