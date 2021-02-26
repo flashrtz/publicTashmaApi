@@ -11,7 +11,7 @@ router.get("/", async (req, res) => {
           console.log(error);
         });
       }
-      res.send(results[0]);
+      res.status(400).send("Error while getting all users");
     });
   } catch (err) {
     console.log(err);
