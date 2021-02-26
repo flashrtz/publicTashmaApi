@@ -11,7 +11,7 @@ import mysql from 'mysql';
     host            : 'localhost',
     user            : 'admin',
     password        : 'admin',
-    database        : 'tashma',
+    database        : 'tashmapossystem',
     insecureAuth : true
   });
 export default mysqlConnection;
