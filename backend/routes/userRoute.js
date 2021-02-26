@@ -5,14 +5,7 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    mysqlConnection.query(`CALL GetAllUsers();`, (error, results, fields) => {
-      if (error) {
-        return mysqlConnection.rollback(() => {
-          throw error;
-        });
-      }
-      res.send(results[0]);
-    });
+    mysqlConnection.query(`CALL GetAllUsers();`);
   } catch (err) {
     console.log(err);
     res.status(400).send(err.message);
@@ -29,7 +22,7 @@ router.get("/:id", async (req, res) => {
             throw error;
           });
         }
-    
+
         res.send(results[0]);
       }
     );
@@ -83,7 +76,7 @@ router.put("/", async (req, res) => {
     var Description = req.body.Description;
     var NIC = req.body.NIC;
     var EPFNumber = req.body.EPFNumber;
-    var IsAdmin = req.body.IsAdmin;;
+    var IsAdmin = req.body.IsAdmin;
     mysqlConnection.beginTransaction((err) => {
       if (err) {
         throw err;
@@ -162,14 +155,17 @@ router.post("/signin", async (req, res) => {
           if (error) {
             return mysqlConnection.rollback(() => {
               throw error;
-            }); 
+            });
           }
           console.log(results);
           if (results[0][0].LoginStatus == 0) {
             res.send({ login: false });
           }
           if (results[0][0].LoginStatus == 1) {
-            res.send({ login: true, isAdmin: results[0][0].IsAdmin == 1 ? true : false });
+            res.send({
+              login: true,
+              isAdmin: results[0][0].IsAdmin == 1 ? true : false,
+            });
           }
         }
       );
