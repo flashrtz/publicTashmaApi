@@ -1,6 +1,7 @@
 {
-  "name": "TashmaPOS",
+  "name": "tashma_api",
   "version": "1.0.0",
+  "type": "module",
   "description": "Backend for POS in Tashma Studio",
   "main": "index.js",
   "dependencies": {

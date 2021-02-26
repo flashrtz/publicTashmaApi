@@ -38,7 +38,7 @@ app.use(function (req, res, next) {
   // Pass to next layer of middleware
   next();
 });
-
+app.get("/", (_req, res) => res.send("Hello Tashma"));
 app.use(bodyParser.json());
 app.use("/api/users", userRoute);
 app.use("/api/orders", orderRoute);
