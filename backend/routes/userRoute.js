@@ -10,6 +10,7 @@ router.get("/", async (req, res) => {
         mysqlConnection.rollback();
         res.status(500).send("Error while getting all users");
       }
+      res.send(results[0]);
     });
   } catch (err) {
     console.log(err);
@@ -43,9 +44,10 @@ router.post("/", async (req, res) => {
     var EPFNumber = req.body.EPFNumber;
     var IsAdmin = req.body.IsAdmin;
     mysqlConnection.beginTransaction((err) => {
+      if (err) {
       mysqlConnection.rollback();
       res.status(500).send("Error while creating user");
-
+    }
       mysqlConnection.query(
         `CALL CreateUser('${Name}','${Description}', '${NIC}', '${EPFNumber}', '${IsAdmin}');`,
         (error, results, fields) => {

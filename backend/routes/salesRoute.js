@@ -38,7 +38,6 @@ router.post("/sales", async (req, res) => {
             mysqlConnection.rollback();
             res.status(500).send("Error while getting commissions");
           }
-          console.log(results);
           res.send(results[0]);
         }
       );
