@@ -9,8 +9,9 @@ router.get("/", async (req, res) => {
       `CALL GetAllCommissons();`,
       (error, results, fields) => {
         if (error) {
-          mysqlConnection.rollback();
-          res.status(500).send("Error while gettig all commissions");
+          return mysqlConnection.rollback(() => {
+            throw error;
+          });
         }
         res.send(results[0]);
       }
@@ -28,15 +29,15 @@ router.post("/sales", async (req, res) => {
 
     mysqlConnection.beginTransaction((err) => {
       if (err) {
-        mysqlConnection.rollback();
-        res.status(500).send("Error while getting commissions");
+        throw err;
       }
       mysqlConnection.query(
         `CALL GetUserCommissonsByMonthYear(${month},${year}');`,
         (error, results, fields) => {
           if (error) {
-            mysqlConnection.rollback();
-            res.status(500).send("Error while getting commissions");
+            return mysqlConnection.rollback(() => {
+              throw error;
+            });
           }
           console.log(results);
           res.send(results[0]);
