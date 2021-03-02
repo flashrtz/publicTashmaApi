@@ -3,6 +3,42 @@ import mysqlConnection from "../mysql.js";
 
 const router = express.Router();
 
+router.post("/signin", async (req, res) => {
+  try {
+    var epfnumber = req.body.epfnumber;
+    var password = req.body.password;
+
+    mysqlConnection.beginTransaction((err) => {
+      if (err) {
+        mysqlConnection.rollback();
+        res.status(500).send("Error while signing in");
+      }
+      mysqlConnection.query(
+        `CALL SignIn('${epfnumber}','${password}');`,
+        (error, results, fields) => {
+          if (error) {
+            mysqlConnection.rollback();
+            res.status(500).send("Error while signing in");
+          }
+          console.log(results);
+          if (results[0][0].LoginStatus == 0) {
+            res.send({ login: false });
+          }
+          if (results[0][0].LoginStatus == 1) {
+            res.send({
+              login: true,
+              isAdmin: results[0][0].IsAdmin == 1 ? true : false,
+            });
+          }
+        }
+      );
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(400).send(err.message);
+  }
+});
+
 router.get("/", async (req, res) => {
   try {
     mysqlConnection.query(`CALL GetAllUsers();`, (error, results, fields) => {
@@ -134,42 +170,6 @@ router.delete("/", async (req, res) => {
         console.log("success!");
         res.send({ message: "User Deleted." });
       });
-    });
-  } catch (err) {
-    console.log(err);
-    res.status(400).send(err.message);
-  }
-});
-
-router.post("/signin", async (req, res) => {
-  try {
-    var epfnumber = req.body.epfnumber;
-    var password = req.body.password;
-
-    mysqlConnection.beginTransaction((err) => {
-      if (err) {
-        mysqlConnection.rollback();
-        res.status(500).send("Error while signing in");
-      }
-      mysqlConnection.query(
-        `CALL SignIn('${epfnumber}','${password}');`,
-        (error, results, fields) => {
-          if (error) {
-            mysqlConnection.rollback();
-            res.status(500).send("Error while signing in");
-          }
-          console.log(results);
-          if (results[0][0].LoginStatus == 0) {
-            res.send({ login: false });
-          }
-          if (results[0][0].LoginStatus == 1) {
-            res.send({
-              login: true,
-              isAdmin: results[0][0].IsAdmin == 1 ? true : false,
-            });
-          }
-        }
-      );
     });
   } catch (err) {
     console.log(err);
