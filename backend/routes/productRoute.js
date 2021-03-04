@@ -74,10 +74,10 @@ router.put("/", async (req, res) => {
     mysqlConnection.beginTransaction((err) => {
       if (err) {
         mysqlConnection.rollback();
-        res.status(500).send("Error while editing product");
+        res.status(500).send("Error while editing product");        
       }
       mysqlConnection.query(
-        `CALL CreateProduct(${ProductId},${CategoryId},'${Name}','${Description}',${BuyingPrice},${SellingPrice},${Quantity},${Commission});`,
+        `CALL EditProduct(${ProductId},${CategoryId},'${Name}','${Description}',${BuyingPrice},${SellingPrice},${Quantity},${Commission});`,
         (error, results, fields) => {
           if (error) {
             mysqlConnection.rollback();
@@ -100,9 +100,9 @@ router.put("/", async (req, res) => {
   }
 });
 
-router.delete("/", async (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
-    var ProductId = req.body.ProductId;
+    var ProductId = req.params.id;
     mysqlConnection.beginTransaction((err) => {
       if (err) {
         mysqlConnection.rollback();
