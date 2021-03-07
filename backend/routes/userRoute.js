@@ -8,12 +8,6 @@ router.post("/signin", async (req, res) => {
   try {
     var epfnumber = req.body.epfnumber;
     var password = req.body.password;
-    
-    mysqlConnection.beginTransaction((err) => {
-      if (err) {
-        mysqlConnection.rollback();
-        res.status(500).send("Error while signing in");
-      }
       mysqlConnection.query(
         `CALL SignIn('${epfnumber}','${password}');`,
         (error, results, fields) => {
@@ -21,18 +15,18 @@ router.post("/signin", async (req, res) => {
             mysqlConnection.rollback();
             res.status(500).send("Error while signing in");
           }
-          if (results[0][0].LoginStatus == 0) {
+          if (results[0][0] == null) {
             res.send({ login: false });
           }
-          if (results[0][0].LoginStatus == 1) {
+          if (results[0][0] != null) {
             res.send({
               login: true,
               isAdmin: results[0][0].IsAdmin == 1 ? true : false,
+              name: results[0][0].Name,
             });
           }
         }
       );
-    });
   } catch (err) {
     console.log(err);
     res.status(400).send(err.message);
