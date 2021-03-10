@@ -20,18 +20,16 @@ const router = express.Router();
 //   }
 // });
 
-router.post("/getcashierdetails", async (req, res) => {
+router.get("/get-pettycash", async (req, res) => {
   try {
-    var date = req.body.date;
     mysqlConnection.query(
-      `CALL GetAllCashierDetails('${date}');`,
+      `CALL GetPettyCash();`,
       (error, results, fields) => {
         if (error) {
           mysqlConnection.rollback();
           res.status(500).send("Error while getting cashier details");
         }
-        var orders = results;
-        res.send(orders);
+        res.send(results[0][0]);
       }
     );
   } catch (err) {
@@ -74,32 +72,31 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/", async (req, res) => {
+router.post("/insert-withdrawal", async (req, res) => {
   try {
-    var CategoryId = req.body.CategoryId;
-    var CategoryName = req.body.CategoryName;
-    // console.log(OrderId);
+    var withdrawalAmount = req.body.WithdrawalAmount;
+    var createdBy = req.body.CreatedBy;
     mysqlConnection.beginTransaction((err) => {
       if (err) {
         mysqlConnection.rollback();
-        res.status(500).send("Error while editing category");
+        res.status(500).send("Error while inserting petty cash details");
       }
       mysqlConnection.query(
-        `CALL EditCategory(${CategoryId},'${CategoryName}');`,
+        `CALL InsertCashierWithdrawal(${withdrawalAmount},${createdBy});`,
         (error, results, fields) => {
           if (error) {
             mysqlConnection.rollback();
-            res.status(500).send("Error while editing category");
+            res.status(500).send("Error while inserting petty cash details");
           }
         }
       );
       mysqlConnection.commit((err) => {
         if (err) {
           mysqlConnection.rollback();
-          res.status(500).send("Error while editing category");
+          res.status(500).send("Error while inserting petty cash details");
         }
         console.log("success!");
-        res.send({ message: "Category Edited." });
+        res.send({ message: "Petty Cash Updated." });
       });
     });
   } catch (err) {

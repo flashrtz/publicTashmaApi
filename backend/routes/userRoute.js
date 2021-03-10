@@ -4,29 +4,38 @@ import mysqlConnection from "../mysql.js";
 const router = express.Router();
 
 router.post("/signin", async (req, res) => {
-
   try {
     var epfnumber = req.body.epfnumber;
     var password = req.body.password;
-      mysqlConnection.query(
-        `CALL SignIn('${epfnumber}','${password}');`,
-        (error, results, fields) => {
-          if (error) {
-            mysqlConnection.rollback();
-            res.status(500).send("Error while signing in");
-          }
-          if (results[0][0] == null) {
-            res.send({ login: false });
-          }
-          if (results[0][0] != null) {
+    mysqlConnection.query(
+      `CALL SignIn('${epfnumber}','${password}');`,
+      (error, results, fields) => {
+        if (error) {
+          mysqlConnection.rollback();
+          res.status(500).send("Error while signing in");
+        }
+        if (results[0][0] == null) {
+          res.send({ login: false });
+        }
+        if (results[0][0] != null) {
+          if (password == '1234') {
             res.send({
               login: true,
               isAdmin: results[0][0].IsAdmin == 1 ? true : false,
+              newUser: true,
+              name: results[0][0].Name,
+            });
+          } else {
+            res.send({
+              login: true,
+              isAdmin: results[0][0].IsAdmin == 1 ? true : false,
+              newUser: false,
               name: results[0][0].Name,
             });
           }
         }
-      );
+      }
+    );
   } catch (err) {
     console.log(err);
     res.status(400).send(err.message);
@@ -75,9 +84,9 @@ router.post("/", async (req, res) => {
     var IsAdmin = req.body.IsAdmin;
     mysqlConnection.beginTransaction((err) => {
       if (err) {
-      mysqlConnection.rollback();
-      res.status(500).send("Error while creating user");
-    }
+        mysqlConnection.rollback();
+        res.status(500).send("Error while creating user");
+      }
       mysqlConnection.query(
         `CALL CreateUser('${Name}','${Description}', '${NIC}', '${EPFNumber}', '${IsAdmin}');`,
         (error, results, fields) => {
@@ -112,8 +121,8 @@ router.put("/", async (req, res) => {
     // var IsAdmin = req.body.IsAdmin;
     mysqlConnection.beginTransaction((err) => {
       if (err) {
-         mysqlConnection.rollback();
-            res.status(500).send("Error while editing user");
+        mysqlConnection.rollback();
+        res.status(500).send("Error while editing user");
       }
       mysqlConnection.query(
         `CALL EditUser('${UserId}', '${Name}','${Description}', '${NIC}', '${EPFNumber}');`,
@@ -127,7 +136,7 @@ router.put("/", async (req, res) => {
       mysqlConnection.commit((err) => {
         if (err) {
           mysqlConnection.rollback();
-            res.status(500).send("Error while editing user");
+          res.status(500).send("Error while editing user");
         }
         console.log("success!");
         res.send({ message: "User Edited." });
@@ -159,7 +168,7 @@ router.delete("/:id", async (req, res) => {
       mysqlConnection.commit((err) => {
         if (err) {
           mysqlConnection.rollback();
-        res.status(500).send("Error while deleting user");
+          res.status(500).send("Error while deleting user");
         }
         console.log("success!");
         res.send({ message: "User Deleted." });
