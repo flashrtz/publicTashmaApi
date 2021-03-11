@@ -193,13 +193,15 @@ router.post("/", async (req, res) => {
 router.post("/complete", async (req, res) => {
   try {
     var OrderId = req.body.OrderId;
+    var AdvancePayment = req.body.AdvancePayment;
+    var UserId = req.body.UserId;
     mysqlConnection.beginTransaction((err) => {
       if (err) {
         mysqlConnection.rollback();
         res.status(500).send("Error while completing order");
       }
       mysqlConnection.query(
-        `CALL CompleteOrder(${OrderId});`,
+        `CALL CompleteOrder(${OrderId}, ${AdvancePayment}, ${UserId});`,
         (error, results, fields) => {
           if (error) {
             mysqlConnection.rollback();
