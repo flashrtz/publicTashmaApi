@@ -10,8 +10,12 @@ router.get("/", async (req, res) => {
         mysqlConnection.rollback();
         res.status(500).send("Error while getting all orders");
       }
-      var orders = results;
-      res.send(orders[0]);
+      if (results[0] == null) {
+        res.send("No Order records to be returned");
+      }
+      if (results[0] != null) {
+        res.send(results[0]);
+      }
     });
   } catch (err) {
     console.log(err);
@@ -29,50 +33,60 @@ router.get("/:id", async (req, res) => {
           mysqlConnection.rollback();
           res.status(500).send("Error while getting order");
         }
-        order = {
-          OrderId: results[0][0].OrderId,
-          OrderTotal: results[0][0].OrderTotal,
-          PaymentMethodName: results[0][0].PaymentMethodName,
-          AdvancePayment: results[0][0].AdvancePayment,
-          AmountDue: results[0][0].AmountDue,
-          IsDone: results[0][0].IsDone,
-          IsCompleted: results[0][0].IsCompleted,
-          CreatedDate: results[0][0].CreatedDate,
-          CustomerId: results[0][0].CustomerId,
-          CustomerName: results[0][0].CustomerName,
-          PhoneNumber: results[0][0].PhoneNumber,
-          CreatedBy: results[0][0].CreatedBy,
-          Items: [],
-        };
-      }
-    );
-    mysqlConnection.query(
-      `CALL GetOrderItemsbyId(${req.params.id});`,
-      (error, results, fields) => {
-        if (error) {
-          mysqlConnection.rollback();
-          res.status(500).send("Error while getting order items");
+        if (results[0][0] == null) {
+          res.send("No Order records to be returned");
         }
-        var items = results[0].map((item, i) => {
-          return {
-            Id: item.Id,
-            OrderId: item.OrderId,
-            CategoryName: item.CategoryName,
-            ProductName: item.ProductName,
-            Description: item.Description,
-            Qty: item.Qty,
-            Price: item.Price,
-            Discount: item.Discount,
-            WorkDoneBy: item.WorkDoneByName,
-            Commission: item.Commission,
-            CreatedDate: item.CreatedDate,
-            CreatedBy: item.CreatedBy,
-            ModifiedDate: item.ModifiedDate,
-            ModifiedBy: item.ModifiedBy,
+        if (results[0][0] != null) {
+          order = {
+            OrderId: results[0][0].OrderId,
+            OrderTotal: results[0][0].OrderTotal,
+            PaymentMethodName: results[0][0].PaymentMethodName,
+            AdvancePayment: results[0][0].AdvancePayment,
+            AmountDue: results[0][0].AmountDue,
+            IsDone: results[0][0].IsDone,
+            IsCompleted: results[0][0].IsCompleted,
+            CreatedDate: results[0][0].CreatedDate,
+            CustomerId: results[0][0].CustomerId,
+            CustomerName: results[0][0].CustomerName,
+            PhoneNumber: results[0][0].PhoneNumber,
+            CreatedBy: results[0][0].CreatedBy,
+            Items: [],
           };
-        });
-        order.Items = items;
-        res.send(order);
+          mysqlConnection.query(
+            `CALL GetOrderItemsbyId(${req.params.id});`,
+            (error, results, fields) => {
+              if (error) {
+                mysqlConnection.rollback();
+                res.status(500).send("Error while getting order items");
+              }
+              if (results[0] == null) {
+                res.send("No Commission records to be returned");
+              }
+              if (results[0] != null) {
+                var items = results[0].map((item, i) => {
+                  return {
+                    Id: item.Id,
+                    OrderId: item.OrderId,
+                    CategoryName: item.CategoryName,
+                    ProductName: item.ProductName,
+                    Description: item.Description,
+                    Qty: item.Qty,
+                    Price: item.Price,
+                    Discount: item.Discount,
+                    WorkDoneBy: item.WorkDoneByName,
+                    Commission: item.Commission,
+                    CreatedDate: item.CreatedDate,
+                    CreatedBy: item.CreatedBy,
+                    ModifiedDate: item.ModifiedDate,
+                    ModifiedBy: item.ModifiedBy,
+                  };
+                });
+                order.Items = items;
+                res.send(order);
+              }
+            }
+          );
+        }
       }
     );
   } catch (err) {
@@ -90,8 +104,12 @@ router.post("/get-order-by-daterange", async (req, res) => {
           mysqlConnection.rollback();
           res.status(500).send("Error while getting orders");
         }
-        var orders = results;
-        res.send(orders[0]);
+        if (results[0] == null) {
+          res.send("No Order records to be returned");
+        }
+        if (results[0] != null) {
+          res.send(results[0]);
+        }
       }
     );
   } catch (err) {

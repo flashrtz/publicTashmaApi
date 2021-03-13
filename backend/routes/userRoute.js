@@ -24,6 +24,7 @@ router.post("/signin", async (req, res) => {
               isAdmin: results[0][0].IsAdmin == 1 ? true : false,
               newUser: true,
               name: results[0][0].Name,
+              id: results[0][0].Id
             });
           } else {
             res.send({
@@ -31,6 +32,7 @@ router.post("/signin", async (req, res) => {
               isAdmin: results[0][0].IsAdmin == 1 ? true : false,
               newUser: false,
               name: results[0][0].Name,
+              id: results[0][0].Id
             });
           }
         }
@@ -49,7 +51,12 @@ router.get("/", async (req, res) => {
         mysqlConnection.rollback();
         res.status(500).send("Error while getting all users");
       }
-      res.send(results[0]);
+      if (results[0] == null) {
+        res.send("No User records to be returned");
+      }
+      if (results[0] != null) {
+        res.send(results[0]);
+      }
     });
   } catch (err) {
     console.log(err);
@@ -66,7 +73,12 @@ router.get("/:id", async (req, res) => {
           mysqlConnection.rollback();
           res.status(500).send("Error while getting user");
         }
-        res.send(results[0]);
+        if (results[0] == null) {
+          res.send("No User records to be returned");
+        }
+        if (results[0] != null) {
+          res.send(results[0]);
+        }
       }
     );
   } catch (err) {

@@ -12,7 +12,12 @@ router.get("/", async (req, res) => {
           mysqlConnection.rollback();
           res.status(500).send("Error while gettig all commissions");
         }
-        res.send(results[0]);
+        if (results[0] == null) {
+          res.send("No Commission records to be returned");
+        }
+        if (results[0] != null) {
+          res.send(results[0]);
+        }
       }
     );
   } catch (err) {
@@ -38,7 +43,12 @@ router.post("/sales", async (req, res) => {
             mysqlConnection.rollback();
             res.status(500).send("Error while getting commissions");
           }
-          res.send(results[0]);
+          if (results[0] == null) {
+            res.send("No Commission records to be returned");
+          }
+          if (results[0] != null) {
+            res.send(results[0]);
+          }
         }
       );
     });
