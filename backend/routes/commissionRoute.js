@@ -12,7 +12,12 @@ router.get("/", async (req, res) => {
           mysqlConnection.rollback();
           res.status(500).send("Error while getting all commissons");
         }
-        res.send(results[0]);
+        if (results[0] == null) {
+          res.send("No Commission records to be returned");
+        }
+        if (results[0] != null) {
+          res.send(results[0]);
+        }
       }
     );
   } catch (err) {
@@ -39,8 +44,12 @@ router.post("/usercommission", async (req, res) => {
             mysqlConnection.rollback();
             res.status(500).send("Error while getting user commissons");
           }
-          console.log(results);
-          res.send(results[0]);
+          if (results[0] == null) {
+            res.send("No Commission records to be returned");
+          }
+          if (results[0] != null) {
+            res.send(results[0]);
+          }
         }
       );
     });
