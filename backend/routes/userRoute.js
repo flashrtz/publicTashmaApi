@@ -24,6 +24,7 @@ router.post("/signin", async (req, res) => {
               isAdmin: results[0][0].IsAdmin == 1 ? true : false,
               newUser: true,
               name: results[0][0].Name,
+              id: results[0][0].Id
             });
           } else {
             res.send({
@@ -31,6 +32,7 @@ router.post("/signin", async (req, res) => {
               isAdmin: results[0][0].IsAdmin == 1 ? true : false,
               newUser: false,
               name: results[0][0].Name,
+              id: results[0][0].Id
             });
           }
         }
