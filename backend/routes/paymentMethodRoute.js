@@ -12,8 +12,12 @@ router.get("/", async (req, res) => {
           mysqlConnection.rollback();
           res.status(500).send("Error while getting payment methods");
         }
-        var orders = results;
-        res.send(orders[0]);
+        if (results[0] == null) {
+          res.send("No Payment Method records to be returned");
+        }
+        if (results[0] != null) {
+          res.send(results[0]);
+        }
       }
     );
   } catch (err) {
