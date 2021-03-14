@@ -124,6 +124,7 @@ router.post("/", async (req, res) => {
     var User = req.body.UserId;
     mysqlConnection.beginTransaction((err) => {
       if (err) {
+        console.log(err,"EERRROR")
         mysqlConnection.rollback();
         res.status(500).send("Error while creating order");
       }
@@ -131,6 +132,8 @@ router.post("/", async (req, res) => {
         `CALL InsertCustomer('${CustomerName}', '${PhoneNumber}', ${User}, @customerId);`,
         (error, results, fields) => {
           if (error) {
+            console.log(err,"EERRROR2")
+
             mysqlConnection.rollback();
             res.status(500).send("Error while creating customer");
           }
