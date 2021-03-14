@@ -10,7 +10,7 @@ router.get("/get-pettycash", async (req, res) => {
         mysqlConnection.rollback();
         res.status(500).send("Error while getting cashier details");
       }
-      if (results[0][0] == null) {
+      if (results[0][0] == null ||results[0][0] == undefined ) {
         res.send("No Petty Cash records to be returned");
       }
       if (results[0][0] != null) {
@@ -23,6 +23,37 @@ router.get("/get-pettycash", async (req, res) => {
   }
 });
 
+
+router.post("/get-dailystatus-report", async (req, res) => {
+  try {
+    var startDate = req.body.date;
+
+    mysqlConnection.beginTransaction((err) => {
+      if (err) {
+        mysqlConnection.rollback();
+        return  res.send("Error while getting daily status details");
+      }
+      mysqlConnection.query(
+        `CALL GetDailyStatusReport('${startDate}');`,
+        (error, results, fields) => {
+          if (error) {
+            mysqlConnection.rollback();
+            return res.send("Error while getting daily status details");
+          }
+          if (results[0] == null || results[0] == undefined) {
+            return res.send("No records to be returned");
+          }
+          if (results[0] != null || results[0] != undefined) {
+            return res.send(results[0]);
+          }
+        }
+      );
+    });
+  } catch (err) {
+    console.log(err,"EXCEPTION");
+     res.status(400).send(err.message);
+  }
+});
 router.post("/", async (req, res) => {
   try {
     var amount = req.body.amount;

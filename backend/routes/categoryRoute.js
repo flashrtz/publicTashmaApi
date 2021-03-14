@@ -12,10 +12,10 @@ router.get("/", async (req, res) => {
           mysqlConnection.rollback();
           res.status(500).send("Error while getting all categories");
         }
-        if (results[0] == null) {
+        if (results[0] == null || results[0] == undefined) {
           res.send("No Category records to be returned");
         }
-        if (results[0] != null) {
+        if (results[0] != null || results[0] != undefined) {
           res.send(results[0]);
         }
       }
