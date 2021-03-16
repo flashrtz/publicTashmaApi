@@ -12,19 +12,19 @@ import salesRoute from "./routes/salesRoute";
 import cashierRoute from "./routes//cashierRoute";
 
 const app = express();
-app.use(
-  cors({
-    origin: "http://dashboard.tashmastudio.com",
-    credentials: true,
-  })
-);
-
 // app.use(
 //   cors({
-//     origin: "http://localhost:8080",
+//     origin: "http://dashboard.tashmastudio.com",
 //     credentials: true,
 //   })
 // );
+
+app.use(
+  cors({
+    origin: "http://localhost:8080",
+    credentials: true,
+  })
+);
 
 app.get("/", (_req, res) => res.send("Hello Tashma"));
 app.use(bodyParser.json());
