@@ -10,13 +10,13 @@ router.get("/", async (req, res) => {
       (error, results, fields) => {
         if (error) {
           mysqlConnection.rollback();
-          res.status(500).send("Error while gettig all commissions");
+          return res.status(500).send("Error while gettig all commissions");
         }
         if (results[0] == null) {
-          res.send("No Commission records to be returned");
+          return res.send("No Commission records to be returned");
         }
         if (results[0] != null) {
-          res.send(results[0]);
+          return res.send(results[0]);
         }
       }
     );
@@ -34,20 +34,20 @@ router.post("/sales", async (req, res) => {
     mysqlConnection.beginTransaction((err) => {
       if (err) {
         mysqlConnection.rollback();
-        res.status(500).send("Error while getting commissions");
+        return res.status(500).send("Error while getting commissions");
       }
       mysqlConnection.query(
         `CALL GetUserCommissonsByMonthYear(${month},${year}');`,
         (error, results, fields) => {
           if (error) {
             mysqlConnection.rollback();
-            res.status(500).send("Error while getting commissions");
+            return res.status(500).send("Error while getting commissions");
           }
           if (results[0] == null) {
-            res.send("No Commission records to be returned");
+            return res.send("No Commission records to be returned");
           }
           if (results[0] != null) {
-            res.send(results[0]);
+            return res.send(results[0]);
           }
         }
       );

@@ -10,13 +10,13 @@ router.get("/", async (req, res) => {
       (error, results, fields) => {
         if (error) {
           mysqlConnection.rollback();
-          res.status(500).send("Error while getting payment methods");
+          return res.status(500).send("Error while getting payment methods");
         }
         if (results[0] == null) {
-          res.send("No Payment Method records to be returned");
+          return res.send("No Payment Method records to be returned");
         }
         if (results[0] != null) {
-          res.send(results[0]);
+          return res.send(results[0]);
         }
       }
     );

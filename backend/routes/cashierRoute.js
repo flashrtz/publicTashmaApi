@@ -8,13 +8,13 @@ router.get("/get-pettycash", async (req, res) => {
     mysqlConnection.query(`CALL GetPettyCash();`, (error, results, fields) => {
       if (error) {
         mysqlConnection.rollback();
-        res.status(500).send("Error while getting cashier details");
+        return res.status(500).send("Error while getting cashier details");
       }
-      if (results[0][0] == null ||results[0][0] == undefined ) {
-        res.send("No Petty Cash records to be returned");
+      if (results[0][0] == null || results[0][0] == undefined) {
+        return res.send("No Petty Cash records to be returned");
       }
       if (results[0][0] != null) {
-        res.send(results[0][0]);
+        return res.send(results[0][0]);
       }
     });
   } catch (err) {
@@ -23,7 +23,6 @@ router.get("/get-pettycash", async (req, res) => {
   }
 });
 
-
 router.post("/get-dailystatus-report", async (req, res) => {
   try {
     var startDate = req.body.date;
@@ -31,7 +30,7 @@ router.post("/get-dailystatus-report", async (req, res) => {
     mysqlConnection.beginTransaction((err) => {
       if (err) {
         mysqlConnection.rollback();
-        return  res.send("Error while getting daily status details");
+        return res.send("Error while getting daily status details");
       }
       mysqlConnection.query(
         `CALL GetDailyStatusReport('${startDate}');`,
@@ -50,8 +49,8 @@ router.post("/get-dailystatus-report", async (req, res) => {
       );
     });
   } catch (err) {
-    console.log(err,"EXCEPTION");
-     res.status(400).send(err.message);
+    console.log(err, "EXCEPTION");
+    res.status(400).send(err.message);
   }
 });
 router.post("/", async (req, res) => {
@@ -62,21 +61,25 @@ router.post("/", async (req, res) => {
     mysqlConnection.beginTransaction((err) => {
       if (err) {
         mysqlConnection.rollback();
-        res.status(500).send("Error while inserting petty cash details");
+        return res.status(500).send("Error while inserting petty cash details");
       }
       mysqlConnection.query(
         `CALL InsertPettyCash('${amount}','${ispettycash}','${createdBy}');`,
         (error, results, fields) => {
           if (error) {
             mysqlConnection.rollback();
-            res.status(500).send("Error while inserting petty cash details");
+            return res
+              .status(500)
+              .send("Error while inserting petty cash details");
           }
         }
       );
       mysqlConnection.commit((err) => {
         if (err) {
           mysqlConnection.rollback();
-          res.status(500).send("Error while inserting petty cash details");
+          return res
+            .status(500)
+            .send("Error while inserting petty cash details");
         }
         console.log("success!");
         res.send({ message: "Petty Cash Updated." });
@@ -96,24 +99,27 @@ router.post("/insert-withdrawal", async (req, res) => {
     mysqlConnection.beginTransaction((err) => {
       if (err) {
         mysqlConnection.rollback();
-        res.status(500).send("Error while inserting petty cash details");
+        return res.status(500).send("Error while inserting petty cash details");
       }
       mysqlConnection.query(
         `CALL InsertCashierWithdrawal(${withdrawalAmount},'${description}',${createdBy});`,
         (error, results, fields) => {
           if (error) {
             mysqlConnection.rollback();
-            res.status(500).send("Error while inserting petty cash details");
+            return res
+              .status(500)
+              .send("Error while inserting petty cash details");
           }
         }
       );
       mysqlConnection.commit((err) => {
         if (err) {
           mysqlConnection.rollback();
-          res.status(500).send("Error while inserting petty cash details");
+          return res
+            .status(500)
+            .send("Error while inserting petty cash details");
         }
-        console.log("success!");
-        res.send({ message: "Petty Cash Updated." });
+        return res.send({ message: "Petty Cash Updated." });
       });
     });
   } catch (err) {

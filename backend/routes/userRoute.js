@@ -12,27 +12,27 @@ router.post("/signin", async (req, res) => {
       (error, results, fields) => {
         if (error) {
           mysqlConnection.rollback();
-          res.status(500).send("Error while signing in");
+          return res.status(500).send("Error while signing in");
         }
         if (results[0][0] == null) {
-          res.send({ login: false });
+          return res.send({ login: false });
         }
         if (results[0][0] != null) {
-          if (password == '1234') {
-            res.send({
+          if (password == "1234") {
+            return res.send({
               login: true,
               isAdmin: results[0][0].IsAdmin == 1 ? true : false,
               newUser: true,
               name: results[0][0].Name,
-              id: results[0][0].Id
+              id: results[0][0].Id,
             });
           } else {
-            res.send({
+            return res.send({
               login: true,
               isAdmin: results[0][0].IsAdmin == 1 ? true : false,
               newUser: false,
               name: results[0][0].Name,
-              id: results[0][0].Id
+              id: results[0][0].Id,
             });
           }
         }
@@ -49,13 +49,13 @@ router.get("/", async (req, res) => {
     mysqlConnection.query(`CALL GetAllUsers();`, (error, results, fields) => {
       if (error) {
         mysqlConnection.rollback();
-        res.status(500).send("Error while getting all users");
+        return res.status(500).send("Error while getting all users");
       }
       if (results[0] == null) {
-        res.send("No User records to be returned");
+        return res.send("No User records to be returned");
       }
       if (results[0] != null) {
-        res.send(results[0]);
+        return res.send(results[0]);
       }
     });
   } catch (err) {
@@ -71,13 +71,13 @@ router.get("/:id", async (req, res) => {
       (error, results, fields) => {
         if (error) {
           mysqlConnection.rollback();
-          res.status(500).send("Error while getting user");
+          return res.status(500).send("Error while getting user");
         }
         if (results[0] == null) {
-          res.send("No User records to be returned");
+          return res.send("No User records to be returned");
         }
         if (results[0] != null) {
-          res.send(results[0]);
+          return res.send(results[0]);
         }
       }
     );
@@ -97,24 +97,23 @@ router.post("/", async (req, res) => {
     mysqlConnection.beginTransaction((err) => {
       if (err) {
         mysqlConnection.rollback();
-        res.status(500).send("Error while creating user");
+        return res.status(500).send("Error while creating user");
       }
       mysqlConnection.query(
         `CALL CreateUser('${Name}','${Description}', '${NIC}', '${EPFNumber}', '${IsAdmin}');`,
         (error, results, fields) => {
           if (error) {
             mysqlConnection.rollback();
-            res.status(500).send("Error while creating user");
+            return res.status(500).send("Error while creating user");
           }
         }
       );
       mysqlConnection.commit((err) => {
         if (err) {
           mysqlConnection.rollback();
-          res.status(500).send("Error while creating user");
+          return res.status(500).send("Error while creating user");
         }
-        console.log("success!");
-        res.send({ message: "User Created." });
+        return res.send({ message: "User Created." });
       });
     });
   } catch (err) {
@@ -130,28 +129,26 @@ router.put("/", async (req, res) => {
     var Description = req.body.Description;
     var NIC = req.body.NIC;
     var EPFNumber = req.body.EPFNumber;
-    // var IsAdmin = req.body.IsAdmin;
     mysqlConnection.beginTransaction((err) => {
       if (err) {
         mysqlConnection.rollback();
-        res.status(500).send("Error while editing user");
+        return res.status(500).send("Error while editing user");
       }
       mysqlConnection.query(
         `CALL EditUser('${UserId}', '${Name}','${Description}', '${NIC}', '${EPFNumber}');`,
         (error, results, fields) => {
           if (error) {
             mysqlConnection.rollback();
-            res.status(500).send("Error while editing user");
+            return res.status(500).send("Error while editing user");
           }
         }
       );
       mysqlConnection.commit((err) => {
         if (err) {
           mysqlConnection.rollback();
-          res.status(500).send("Error while editing user");
+          return res.status(500).send("Error while editing user");
         }
-        console.log("success!");
-        res.send({ message: "User Edited." });
+        return res.send({ message: "User Edited." });
       });
     });
   } catch (err) {
@@ -166,24 +163,23 @@ router.delete("/:id", async (req, res) => {
     mysqlConnection.beginTransaction((err) => {
       if (err) {
         mysqlConnection.rollback();
-        res.status(500).send("Error while deleting user");
+        return res.status(500).send("Error while deleting user");
       }
       mysqlConnection.query(
         `CALL DeleteUser(${UserId});`,
         (error, results, fields) => {
           if (error) {
             mysqlConnection.rollback();
-            res.status(500).send("Error while deleting user");
+            return res.status(500).send("Error while deleting user");
           }
         }
       );
       mysqlConnection.commit((err) => {
         if (err) {
           mysqlConnection.rollback();
-          res.status(500).send("Error while deleting user");
+          return res.status(500).send("Error while deleting user");
         }
-        console.log("success!");
-        res.send({ message: "User Deleted." });
+        return res.send({ message: "User Deleted." });
       });
     });
   } catch (err) {

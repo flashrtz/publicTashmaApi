@@ -10,13 +10,13 @@ router.get("/", async (req, res) => {
       (error, results, fields) => {
         if (error) {
           mysqlConnection.rollback();
-          res.status(500).send("Error while getting all categories");
+          return res.status(500).send("Error while getting all categories");
         }
         if (results[0] == null || results[0] == undefined) {
-          res.send("No Category records to be returned");
+          return res.send("No Category records to be returned");
         }
         if (results[0] != null || results[0] != undefined) {
-          res.send(results[0]);
+          return res.send(results[0]);
         }
       }
     );
@@ -32,24 +32,23 @@ router.post("/", async (req, res) => {
     mysqlConnection.beginTransaction((err) => {
       if (err) {
         mysqlConnection.rollback();
-        res.status(500).send("Error while creating category");
+        return res.status(500).send("Error while creating category");
       }
       mysqlConnection.query(
         `CALL CreateCategory('${CategoryName}');`,
         (error, results, fields) => {
           if (error) {
             mysqlConnection.rollback();
-            res.status(500).send("Error while creating category");
+            return res.status(500).send("Error while creating category");
           }
         }
       );
       mysqlConnection.commit((err) => {
         if (err) {
           mysqlConnection.rollback();
-          res.status(500).send("Error while creating category");
+          return res.status(500).send("Error while creating category");
         }
-        console.log("success!");
-        res.send({ message: "Category Created." });
+        return res.send({ message: "Category Created." });
       });
     });
   } catch (err) {
@@ -65,24 +64,23 @@ router.put("/", async (req, res) => {
     mysqlConnection.beginTransaction((err) => {
       if (err) {
         mysqlConnection.rollback();
-        res.status(500).send("Error while editing category");
+        return res.status(500).send("Error while editing category");
       }
       mysqlConnection.query(
         `CALL EditCategory(${CategoryId},'${CategoryName}');`,
         (error, results, fields) => {
           if (error) {
             mysqlConnection.rollback();
-            res.status(500).send("Error while editing category");
+            return res.status(500).send("Error while editing category");
           }
         }
       );
       mysqlConnection.commit((err) => {
         if (err) {
           mysqlConnection.rollback();
-          res.status(500).send("Error while editing category");
+          return res.status(500).send("Error while editing category");
         }
-        console.log("success!");
-        res.send({ message: "Category Edited." });
+        return res.send({ message: "Category Edited." });
       });
     });
   } catch (err) {
