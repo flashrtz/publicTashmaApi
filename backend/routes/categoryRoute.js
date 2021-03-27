@@ -28,31 +28,38 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-
-    console.log(req.body)
     var CategoryName = req.body.CategoryName;
     var BillId = req.body.BillId;
     mysqlConnection.beginTransaction((err) => {
       if (err) {
         mysqlConnection.rollback();
-        return res.status(500).send("Error while creating category");
-      }
-      mysqlConnection.query(
-        `CALL CreateCategory('${CategoryName},${BillId}');`,
-        (error, results, fields) => {
-          if (error) {
-            mysqlConnection.rollback();
-            return res.status(500).send("Error while creating category");
+        return res
+          .status(500)
+          .send({ message: "Error while creating category" });
+      } else {
+        mysqlConnection.query(
+          `CALL CreateCategory('${CategoryName}','${BillId}');`,
+          (error, results, fields) => {
+            if (error) {
+              mysqlConnection.rollback();
+              return res
+                .status(500)
+                .send({ message: "Error while creating category" });
+            } else {
+              mysqlConnection.commit((err) => {
+                if (err) {
+                  mysqlConnection.rollback();
+                  return res
+                    .status(500)
+                    .send({ message: "Error while creating category" });
+                } else {
+                  return res.send({ message: "Category Created." });
+                }
+              });
+            }
           }
-        }
-      );
-      mysqlConnection.commit((err) => {
-        if (err) {
-          mysqlConnection.rollback();
-          return res.status(500).send("Error while creating category");
-        }
-        return res.send({ message: "Category Created." });
-      });
+        );
+      }
     });
   } catch (err) {
     console.log(err);
