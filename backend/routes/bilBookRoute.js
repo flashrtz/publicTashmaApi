@@ -6,14 +6,14 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     mysqlConnection.query(
-      `CALL GetAllCategories();`,
+      `CALL GetAllBillBooks();`,
       (error, results, fields) => {
         if (error) {
           mysqlConnection.rollback();
-          return res.status(500).send("Error while getting all categories");
+          return res.status(500).send("Error while getting all bill books");
         }
         if (results[0] == null || results[0] == undefined) {
-          return res.send("No Category records to be returned");
+          return res.send("No bill book records to be returned");
         }
         if (results[0] != null || results[0] != undefined) {
           return res.send(results[0]);
@@ -28,21 +28,19 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-
-    console.log(req.body)
-    var CategoryName = req.body.CategoryName;
-    var BillId = req.body.BillId;
+      console.log(req.body,"!!!!!!!!!!!!!!!!!!!")
+    var BillBookName = req.body.BillBookName;
     mysqlConnection.beginTransaction((err) => {
       if (err) {
         mysqlConnection.rollback();
-        return res.status(500).send("Error while creating category");
+        return res.status(500).send("Error while creating bill book(first)");
       }
       mysqlConnection.query(
-        `CALL CreateCategory('${CategoryName},${BillId}');`,
+        `CALL CreateBillBook('${BillBookName}');`,
         (error, results, fields) => {
           if (error) {
             mysqlConnection.rollback();
-            return res.status(500).send("Error while creating category");
+            return res.status(500).send("Error while creating bill book (Create Bill Book)");
           }
         }
       );
@@ -51,7 +49,7 @@ router.post("/", async (req, res) => {
           mysqlConnection.rollback();
           return res.status(500).send("Error while creating category");
         }
-        return res.send({ message: "Category Created." });
+        return res.send({ message: "Bill book Created." });
       });
     });
   } catch (err) {

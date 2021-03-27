@@ -1,3 +1,4 @@
+require('dotenv').config();
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
@@ -9,8 +10,10 @@ import productRoute from "./routes/productRoute";
 import paymentMethodRoute from "./routes/paymentMethodRoute";
 import commissionRoute from "./routes/commissionRoute";
 import salesRoute from "./routes/salesRoute";
-import cashierRoute from "./routes//cashierRoute";
+import cashierRoute from "./routes/cashierRoute";
+import billBookRoute from "./routes/bilBookRoute";
 
+const {PORT} = process.env;
 const app = express();
 // app.use(
 //   cors({
@@ -36,7 +39,11 @@ app.use("/api/paymentmethods", paymentMethodRoute);
 app.use("/api/commissions", commissionRoute);
 app.use("/api/sales", salesRoute);
 app.use("/api/cashier", cashierRoute);
+app.use("/api/billbook",billBookRoute);
 
-app.listen(config.PORT, () => {
-  console.log("Server started at http://localhost:5000");
+
+
+
+app.listen(PORT, () => {
+  console.log("Server started at http://localhost:"+PORT);
 });
