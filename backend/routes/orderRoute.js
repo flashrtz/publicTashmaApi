@@ -143,13 +143,15 @@ router.post("/", async (req, res) => {
                 return res.status(500).send("Error while getting customerId");
               }
               var CustomerId = results[0].customerId;
+              var BillId = req.body.BillId;
               var OrderTotal = parseFloat(req.body.TotalAmount);
               var PaymentMethodId = parseFloat(req.body.PaymentMethodId);
               var AdvancePayment = parseFloat(req.body.Advance);
               var AmountDue = parseFloat(req.body.AmountDue);
-
+              var IsCompleted = req.body.IsCompleted;
+              console.log(BillId,"asddsad");
               mysqlConnection.query(
-                `CALL InsertOrderDetails(${CustomerId}, ${OrderTotal}, ${PaymentMethodId},${AdvancePayment}, ${AmountDue}, ${User}, @orderId);`,
+                `CALL InsertOrderDetails(${BillId},${CustomerId},${IsCompleted}, ${OrderTotal}, ${PaymentMethodId},${AdvancePayment}, ${AmountDue}, ${User}, @orderId, @billBookFinalId);`,
                 (error, results, fields) => {
                   if (error) {
                     mysqlConnection.rollback();
@@ -158,7 +160,7 @@ router.post("/", async (req, res) => {
                       .send("Error while creating order details");
                   }
                   mysqlConnection.query(
-                    "Select @orderId as orderId;",
+                    "Select @orderId as orderId, @billBookFinalId as billBookFinalId;",
                     (error, results, fields) => {
                       if (error) {
                         mysqlConnection.rollback();
@@ -167,6 +169,7 @@ router.post("/", async (req, res) => {
                           .send("Error while getting orderId");
                       }
                       var OrderId = results[0].orderId;
+                      var BillBookFinalId = results[0].billBookFinalId;
                       req.body.Orders.map((item) => {
                         mysqlConnection.query(
                           `CALL InsertOrderDetailsItem(${OrderId}, ${item.CategoryId}, ${item.ProductId}, '${item.Description}', ${item.Qty}, ${item.Price}, ${item.Discount}, ${item.WorkDoneBy}, ${item.Commission}, ${User});`,
@@ -193,6 +196,7 @@ router.post("/", async (req, res) => {
                         return res.send({
                           message: "Order Created.",
                           OrderId: OrderId,
+                          BillBookFinalId: BillBookFinalId
                         });
                       });
                     }
