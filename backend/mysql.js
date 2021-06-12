@@ -15,11 +15,11 @@ const {DB_HOST,DB_DATABASE,DB_USER,DB_PASS} = process.env
   //   database        : 'tashmapossystem',
   //   insecureAuth : true
   // });
-   const mysqlConnection  = mysql.createConnection({
-    host            : DB_HOST,
-    user            : DB_USER,
-    password        : DB_PASS,
-    database        : DB_DATABASE,
+  const mysqlConnection  = mysql.createConnection({
+    host            : "45.77.42.114",
+    user            : "admin",
+    password        : "admin",
+    database        : "tashmapossystem",
     insecureAuth : true
   });
 export default mysqlConnection;
