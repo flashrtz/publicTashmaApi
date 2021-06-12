@@ -24,7 +24,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:8080",
+    origin: "https://tashmastudio.com/",
     credentials: true,
   })
 );
