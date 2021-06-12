@@ -30,13 +30,14 @@ router.post("/", async (req, res) => {
   try {
       console.log(req.body,"!!!!!!!!!!!!!!!!!!!")
     var BillBookName = req.body.BillBookName;
+    var BillBookValue = req.body.BillBookValue;
     mysqlConnection.beginTransaction((err) => {
       if (err) {
         mysqlConnection.rollback();
         return res.status(500).send("Error while creating bill book(first)");
       }
       mysqlConnection.query(
-        `CALL CreateBillBook('${BillBookName}');`,
+        `CALL CreateBillBook('${BillBookName}','${BillBookValue}');`,
         (error, results, fields) => {
           if (error) {
             mysqlConnection.rollback();
